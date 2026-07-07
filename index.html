@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Egyup Cloud System - V2.9 Pro (Optimized)</title>
+    
+    <!-- الخطوط -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- التصميم الخاص بنا -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ======================== واجهة المستخدم ======================== -->
+    <div id="mainApp" class="container my-4">
+        <div class="marquee-container"><div class="marquee-content">الله أكبر • الحمد لله • سبحان الله وبحمده • لا إله إلا الله • اللهم صلِّ وسلم على نبينا محمد ﷺ • لا حول ولا قوة إلا بالله</div></div>
+
+        <!-- الهيدر -->
+        <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-body-tertiary rounded-3 shadow-sm flex-wrap gap-3" style="background:var(--card-bg);">
+            <div class="d-flex align-items-center gap-3">
+                <img src="https://i.ibb.co/9mj4x6NH/Chat-GPT-Image-26-2026-06-28-40.png" alt="EgyUp Logo" class="app-logo">
+                <div>
+                    <h2 class="mb-0 fw-bold" style="background:var(--primary-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" id="workspaceTitleDisplay">Egyup Cloud System</h2>
+                    <div id="userConnectionStatus" class="mt-1 d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge bg-warning-soft text-warning p-2"><span class="spinner-border spinner-border-sm me-1" role="status"></span> جاري تهيئة الاتصال السحابي...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span id="roleIndicator" class="badge bg-info-soft text-info badge-role"><i class="bi bi-shield-lock-fill"></i> جاري التحقق...</span>
+                <span id="syncIndicator" class="badge bg-body-secondary py-2 px-3 small text-success fw-bold" style="border-radius:20px;"><i class="bi bi-cloud-arrow-up-fill"></i> السحابة محدثة</span>
+                <span id="liveDateTime" class="badge py-2 px-3 small d-none d-lg-inline-block" style="background:var(--bg-secondary);color:var(--text-secondary);border-radius:20px;"></span>
+                <button class="btn btn-outline-secondary rounded-circle p-2" onclick="fetchLivePrices()" title="تحديث أسعار الذهب والفضة لحظياً" style="width:40px;height:40px;" id="refreshPriceBtn"><i class="bi bi-arrow-repeat"></i></button>
+                <button class="btn btn-outline-secondary rounded-circle p-2" onclick="window.print()" title="طباعة" style="width:40px;height:40px;"><i class="bi bi-printer-fill"></i></button>
+                <button class="btn btn-outline-secondary rounded-circle p-2 position-relative" id="notificationBtn" onclick="showAlertsPanel()" style="width:40px;height:40px;"><i class="bi bi-bell-fill"></i><span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger blink-alert" style="display:none;">0</span></button>
+                <button class="btn btn-outline-secondary rounded-circle p-2" onclick="showCloudSyncModal()" style="width:40px;height:40px;"><i class="bi bi-cloud-fill"></i></button>
+                <button class="btn btn-outline-secondary rounded-circle p-2" id="darkModeBtn" onclick="toggleTheme()" style="width:40px;height:40px;"><i class="bi bi-moon-fill"></i></button>
+            </div>
+        </div>
+
+        <!-- التبويبات -->
+        <ul class="nav nav-pills mb-4 justify-content-center gap-1 shadow-sm p-2 bg-body rounded-3" id="mainTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#dashboardTab" type="button" role="tab" onclick="calculateFinanceReport()"><i class="bi bi-pie-chart-fill"></i> المتابعة</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#globalStatsTab" type="button" role="tab" onclick="calculateGlobalOverview()"><i class="bi bi-graph-up-arrow"></i> إحصائيات</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#installmentsTab" type="button" role="tab" onclick="renderInstallmentsTable()"><i class="bi bi-credit-card-2-front-fill"></i> الأقساط</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#recurringTab" type="button" role="tab"><i class="bi bi-receipt"></i> المصروفات</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#cardsTab" type="button" role="tab"><i class="bi bi-credit-card-fill"></i> البطاقات</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#incomeTab" type="button" role="tab"><i class="bi bi-cash-stack"></i> الدخل</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#savingsTab" type="button" role="tab"><i class="bi bi-safe2"></i> الادخار</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#scheduledDebtsTab" type="button" role="tab"><i class="bi bi-calendar-x"></i> ديون مجدولة</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#goalsTab" type="button" role="tab"><i class="bi bi-check2-square"></i> أهدافي</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#memoTab" type="button" role="tab"><i class="bi bi-pencil-square"></i> مذكرات</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#settingsTab" type="button" role="tab"><i class="bi bi-gear-fill"></i> الإعدادات</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tipsTab" type="button" role="tab"><i class="bi bi-lightbulb-fill"></i> نصائح</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- dashboardTab -->
+            <div class="tab-pane fade show active" id="dashboardTab" role="tabpanel">
+                <div id="smartAlertsPanel" class="alerts-panel mb-3"></div>
+                <div id="todayAlertBox"></div>
+                <div class="alert alert-success d-flex align-items-center gap-2 mb-3 py-2" style="border-radius:var(--radius-lg);">
+                    <i class="bi bi-cloud-check-fill" style="font-size:1.5rem;"></i>
+                    <span><strong>مزامنة آمنة نشطة:</strong> يتم حفظ ومزامنة بياناتك سحابياً ولحظياً وبطريقة ذكية تمنع تداخل المدخلات.</span>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-12">
+                        <div class="glass-card bg-primary-subtle border-primary-subtle" style="border-right:6px solid var(--accent);">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-heart-pulse-fill text-danger"></i> المحلل المالي الذكي</h5>
+                            <div id="financeDiagnosticContent"><div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> جاري التحليل...</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div class="btn-group"><button class="btn btn-sm btn-primary active" id="btnMonthly" onclick="changeDashboardView('monthly')"><i class="bi bi-calendar3"></i> شهري</button><button class="btn btn-sm btn-outline-primary" id="btnYearly" onclick="changeDashboardView('yearly')"><i class="bi bi-calendar-range"></i> سنوي</button></div>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-outline-dark btn-sm" onclick="window.print()"><i class="bi bi-printer"></i> طباعة</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="exportDataJSON()"><i class="bi bi-download"></i> تصدير</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('fileImporter').click()"><i class="bi bi-upload"></i> استيراد</button>
+                        <input type="file" id="fileImporter" accept=".json" style="display:none" onchange="importDataJSON(event)">
+                    </div>
+                </div>
+                <div class="row g-2 mb-4 align-items-end" id="monthSelector">
+                    <div class="col-5"><label class="small fw-bold form-label">الشهر</label><select id="filterMonth" class="form-select" onchange="calculateFinanceReport()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select></div>
+                    <div class="col-5"><label class="small fw-bold form-label">السنة</label><input type="number" id="filterYear" class="form-control" value="2026" onchange="calculateFinanceReport()"></div>
+                    <div class="col-2"><button class="btn btn-primary w-100" onclick="calculateFinanceReport()">تحديث</button></div>
+                </div>
+                <div class="row g-3 mb-4" id="statsContainer"></div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6"><div class="p-3 border rounded bg-light-subtle" style="border-radius:var(--radius-lg)!important;background:var(--bg-secondary)!important;"><canvas id="barChart" style="max-height:240px;"></canvas></div></div>
+                    <div class="col-md-6"><div class="p-3 border rounded bg-light-subtle" style="border-radius:var(--radius-lg)!important;background:var(--bg-secondary)!important;"><canvas id="doughnutChart" style="max-height:240px;"></canvas></div></div>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-12"><div class="p-3 border rounded bg-light-subtle" style="border-radius:var(--radius-lg)!important;background:var(--bg-secondary)!important;"><h6 class="mb-3">📈 تطور صافي الثروة شهرياً</h6><canvas id="netWorthChart" style="max-height:280px;"></canvas></div></div>
+                </div>
+                <h5 class="fw-bold mb-3"><i class="bi bi-card-checklist"></i> التزامات الفترة (مجمعة)</h5>
+                <div class="table-responsive"><table class="table table-striped table-hover align-middle" id="dueTable"><thead class="table-dark"><tr><th>الجهة/النوع</th><th>البيان</th><th>التاريخ</th><th>المبلغ</th><th>الحالة</th></tr></thead><tbody></tbody></table></div>
+            </div>
+
+            <!-- globalStatsTab -->
+            <div class="tab-pane fade" id="globalStatsTab" role="tabpanel">
+                <h4 class="fw-bold mb-4 pb-2" style="border-bottom:2px solid var(--border-light);"><i class="bi bi-shield-shaded"></i> التقرير المالي العام</h4>
+                <div class="row g-3 mb-4" id="globalOverviewCards"></div>
+                <div class="card p-3 mb-4 shadow-sm border-0" style="border-radius:var(--radius-lg);background:var(--bg-secondary);">
+                    <h5 class="fw-bold mb-2"><i class="bi bi-bullseye"></i> مؤشر سداد المديونيات</h5>
+                    <div class="progress mb-2" id="globalDebtProgressBar" style="height:28px;font-size:0.95rem;font-weight:bold;border-radius:20px;"></div>
+                    <p class="text-muted small mb-0" id="globalDebtProgressText"></p>
+                </div>
+            </div>
+
+            <!-- installmentsTab -->
+            <div class="tab-pane fade" id="installmentsTab" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4><i class="bi bi-credit-card-2-front"></i> الأقساط والالتزامات <small class="text-muted fs-6">(هيكلية تبسيطية مجمعة ومريحة)</small></h4>
+                    <button class="btn btn-success btn-sm write-action" onclick="showFormModal('installment')"><i class="bi bi-plus-circle"></i> إضافة قسط جديد</button>
+                </div>
+                <div class="d-flex gap-2 mb-3 flex-wrap">
+                    <button class="btn btn-sm btn-outline-primary" onclick="expandAllEntities()"><i class="bi bi-arrows-expand"></i> توسيع الكل</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="collapseAllEntities()"><i class="bi bi-arrows-collapse"></i> طي الكل</button>
+                </div>
+                <input type="text" id="searchInstallments" class="form-control mb-3" placeholder="🔍 بحث عن جهة أو قسط..." oninput="filterTable('installments')">
+                <div class="table-responsive">
+                    <table class="table table-hover text-center align-middle border" id="installmentsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-start">الجهة والبيان</th>
+                                <th>المبالغ (المتبقي / الكلي)</th>
+                                <th>القسط الشهري والقادم</th>
+                                <th>حالة التقدم والسداد</th>
+                                <th>التحكم والإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="installmentsTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info mt-3" id="installmentsSummaryCard" style="border-radius:var(--radius-lg);"></div>
+            </div>
+
+            <!-- المصروفات -->
+            <div class="tab-pane fade" id="recurringTab" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="bi bi-receipt-cutoff"></i> المصروفات</h4><button class="btn btn-success btn-sm write-action" onclick="showFormModal('recurring')"><i class="bi bi-plus-circle"></i> إضافة مصروف</button></div>
+                <input type="text" id="searchRecurring" class="form-control mb-3" placeholder="🔍 بحث..." oninput="filterTable('recurring')">
+                <div class="table-responsive"><table class="table table-bordered table-hover text-center align-middle"><thead class="table-light"><tr><th>الفئة</th><th>النوع</th><th>المبلغ</th><th>التاريخ / يوم الاستحقاق</th><th>الحالة</th><th>التحكم</th></tr></thead><tbody id="recurringTableBody"></tbody></table></div>
+            </div>
+
+            <!-- cardsTab -->
+            <div class="tab-pane fade" id="cardsTab" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="bi bi-credit-card"></i> مديونيات البطاقات</h4><button class="btn btn-success btn-sm write-action" onclick="showFormModal('card')"><i class="bi bi-plus-circle"></i> إضافة</button></div>
+                <div class="alert alert-warning py-2 small" style="border-radius:var(--radius-md);"><i class="bi bi-info-circle-fill"></i> تاريخ الاستحقاق: يوم 25 من الشهر التالي.</div>
+                <input type="text" id="searchCards" class="form-control mb-3" placeholder="🔍 بحث..." oninput="filterTable('cards')">
+                <div class="table-responsive"><table class="table table-bordered table-hover text-center align-middle"><thead class="table-light"><tr><th>البنك</th><th>النوع</th><th>تاريخ الشراء</th><th>المبلغ</th><th>تاريخ السداد</th><th>أيام متبقية</th><th>التحكم</th></tr></thead><tbody id="cardsTableBody"></tbody></table></div>
+            </div>
+
+            <!-- incomeTab -->
+            <div class="tab-pane fade" id="incomeTab" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="bi bi-cash"></i> مصادر الدخل</h4><button class="btn btn-success btn-sm write-action" onclick="showFormModal('income')"><i class="bi bi-plus-circle"></i> إضافة</button></div>
+                <input type="text" id="searchIncome" class="form-control mb-3" placeholder="🔍 بحث..." oninput="filterTable('income')">
+                <div class="table-responsive"><table class="table table-bordered table-hover text-center align-middle"><thead class="table-light"><tr><th>المصدر</th><th>المبلغ</th><th>يوم الإيداع</th><th>التحكم</th></tr></thead><tbody id="incomeTableBody"></tbody></table></div>
+            </div>
+
+            <!-- savingsTab -->
+            <div class="tab-pane fade" id="savingsTab" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="bi bi-safe2"></i> الادخار والأصول</h4><button class="btn btn-success btn-sm write-action" onclick="showFormModal('savings')"><i class="bi bi-plus-circle"></i> إضافة أصل</button></div>
+                <input type="text" id="searchSavings" class="form-control mb-3" placeholder="🔍 بحث..." oninput="filterTable('savings')">
+                <div class="table-responsive"><table class="table table-bordered table-hover text-center align-middle"><thead class="table-light"><tr><th>نوع الأصل</th><th>الاسم</th><th>الكمية/المستهدف</th><th>القيمة الحالية</th><th>الربح/الخسارة</th><th>تاريخ الحيازة</th><th>الإنجاز</th><th>التحكم</th></tr></thead><tbody id="savingsTableBody"></tbody></table></div>
+                <div class="alert alert-info mt-3 small" style="border-radius:var(--radius-lg);"><i class="bi bi-info-circle-fill"></i> يتم تحديث أسعار الذهب والفضة تلقائياً مع كل تحديث للأسعار من البورصة.</div>
+            </div>
+
+            <!-- scheduledDebtsTab -->
+            <div class="tab-pane fade" id="scheduledDebtsTab" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3"><h4><i class="bi bi-calendar-x"></i> الديون المجدولة</h4><button class="btn btn-success btn-sm write-action" onclick="showFormModal('scheduledDebt')"><i class="bi bi-plus-circle"></i> إضافة</button></div>
+                <input type="text" id="searchScheduledDebts" class="form-control mb-3" placeholder="🔍 بحث..." oninput="filterTable('scheduledDebts')">
+                <div class="table-responsive"><table class="table table-bordered table-hover text-center align-middle"><thead class="table-light"><tr><th>الوصف</th><th>المبلغ</th><th>تاريخ الاستحقاق</th><th>ملاحظات</th><th>التحكم</th></tr></thead><tbody id="scheduledDebtsTableBody"></tbody></table></div>
+            </div>
+
+            <!-- goalsTab -->
+            <div class="tab-pane fade" id="goalsTab" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4"><h4><i class="bi bi-check2-square"></i> أهدافي</h4><button class="btn btn-success btn-sm write-action" onclick="showGoalFormModal()"><i class="bi bi-plus-circle"></i> إضافة هدف</button></div>
+                <div class="goals-container" id="goalsContainer"></div>
+            </div>
+
+            <!-- memoTab -->
+            <div class="tab-pane fade" id="memoTab" role="tabpanel">
+                <h4 class="mb-3"><i class="bi bi-pencil-square"></i> المذكرة</h4>
+                <textarea id="memoTextarea" class="form-control" rows="8" placeholder="اكتب ملاحظاتك..."></textarea>
+                <div class="d-flex justify-content-between align-items-center mt-3"><span id="memoAlertText" class="text-success fw-bold"></span><button class="btn btn-primary px-4 write-action" onclick="saveMemoData()"><i class="bi bi-floppy-fill"></i> حفظ</button></div>
+            </div>
+
+            <!-- settingsTab -->
+            <div class="tab-pane fade" id="settingsTab" role="tabpanel">
+                <h4 class="fw-bold mb-3"><i class="bi bi-gear-fill text-primary"></i> الإعدادات المتقدمة</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-sliders"></i> التخصيص</h5>
+                            <div class="mb-3"><label class="form-label small fw-bold">اسم مساحة العمل:</label><input type="text" id="set_workspace_name" class="form-control" onchange="updateWorkspaceMeta()"></div>
+                            <div class="mb-3"><label class="form-label small fw-bold">رمز العملة:</label><input type="text" id="set_currency_symbol" class="form-control" onchange="updateWorkspaceMeta()"></div>
+                            <div class="mb-3"><label class="form-label small fw-bold">أيام التذكير:</label><select id="set_alert_days" class="form-select" onchange="updateWorkspaceMeta()"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="5">5</option><option value="7">7</option></select></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold mb-3 text-warning"><i class="bi bi-shield-fill-check"></i> التحصينات</h5>
+                            <div class="mb-3"><label class="form-label small fw-bold">شهور الطوارئ:</label><input type="number" id="set_emergency_months" class="form-control" value="6" min="0" onchange="updateWorkspaceMeta()"></div>
+                            <div class="mb-3"><label class="form-label small fw-bold">حد DTI %:</label><input type="number" id="set_max_dti" class="form-control" value="40" min="0" max="100" onchange="updateWorkspaceMeta()"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="glass-card">
+                            <h5 class="fw-bold mb-2 text-success"><i class="bi bi-coin"></i> محرك تسعير الذهب والفضة</h5>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-3"><label class="form-label small fw-bold">سعر الدولار (ج.م):</label><input type="number" id="manual_usd_rate" class="form-control" step="0.01" min="0" value="48.00" onchange="updateManualRate()"></div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">أوقية الذهب (USD):</label><input type="number" id="manual_gold_ounce" class="form-control" step="0.01" min="0" value="1950.00" onchange="updateManualRate()"></div>
+                                <div class="col-md-3"><label class="form-label small fw-bold">أوقية الفضة (USD):</label><input type="number" id="manual_silver_ounce" class="form-control" step="0.01" min="0" value="25.00" onchange="updateManualRate()"></div>
+                                <div class="col-md-3"><button class="btn btn-primary w-100 price-refresh-btn" onclick="fetchLivePrices()"><i class="bi bi-cloud-download"></i> تحديث من البورصة</button></div>
+                            </div>
+                            <hr>
+                            <div class="row g-2">
+                                <div class="col-md-3"><span class="badge bg-warning text-dark p-2">عيار 24: <span id="display_gold_24">--</span> ج.م</span></div>
+                                <div class="col-md-3"><span class="badge bg-warning text-dark p-2">عيار 21: <span id="display_gold_21">--</span> ج.م</span></div>
+                                <div class="col-md-3"><span class="badge bg-warning text-dark p-2">عيار 18: <span id="display_gold_18">--</span> ج.م</span></div>
+                                <div class="col-md-3"><span class="badge bg-light text-dark border p-2">الفضة: <span id="display_silver">--</span> ج.م</span></div>
+                            </div>
+                            <div class="mt-2 text-muted small" id="lastPriceUpdateInfo">آخر تحديث: غير محدد</div>
+                            <div class="mt-2 text-muted small"><i class="bi bi-check-circle-fill text-success"></i> يتم تحديث أسعار الأصول الذهبية والفضية المسجلة تلقائياً مع كل تحديث للأسعار.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- tipsTab -->
+            <div class="tab-pane fade" id="tipsTab" role="tabpanel">
+                <div class="tips-section">
+                    <div class="tips-card"><h5><i class="bi bi-shield-check card-icon"></i> الابتعاد عن الربا</h5><p style="color:var(--text-secondary);font-weight:500;">خطوة مباركة تحمي مالك وتجلب البركة.</p></div>
+                    <div class="tips-card" style="border-right-color:var(--success);"><h5><i class="bi bi-bank card-icon" style="color:var(--success);"></i> البدائل الإسلامية</h5><ul><li>حسابات جارية بدون فوائد</li><li>البنوك الإسلامية</li><li>التمويل المتوافق مع الشريعة</li></ul></div>
+                    <div class="tips-card" style="border-right-color:var(--warning);"><h5><i class="bi bi-wallet2 card-icon" style="color:var(--warning);"></i> إدارة المال</h5><ul><li>صندوق الطوارئ</li><li>تجنب بطاقات الائتمان</li><li>عش دون إمكانياتك</li></ul></div>
+                    <div class="tips-card" style="border-right-color:var(--info);"><h5><i class="bi bi-graph-up-arrow card-icon" style="color:var(--info);"></i> الاستثمار الحلال</h5><ul><li>الذهب والعقارات</li><li>الأسهم النقية</li><li>المشاريع التجارية</li></ul></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tips-box shadow-sm" style="background:var(--accent-soft);border-left:4px solid var(--accent);padding:18px 20px;border-radius:var(--radius-lg);margin-top:24px;text-align:center;">
+            <h6 class="fw-bold mb-1"><i class="bi bi-lightbulb-fill"></i> نصيحة مالية:</h6>
+            <p id="financialTipText" class="mb-0 fs-6 fw-semibold" style="color:var(--text-secondary);"></p>
+        </div>
+        <div class="footer-text" style="text-align:center;font-size:0.85rem;opacity:0.6;margin-top:20px;border-top:1px solid var(--border-light);padding-top:18px;">
+            Made with ♥️ by <strong>Mohammed Hussein 2026</strong> – Egyup system
+        </div>
+    </div>
+
+    <!-- زر الخصوصية العائم المبتكر الجديد على الجانب الأيسر -->
+    <div class="position-fixed bottom-0 start-0 m-4 z-3" style="direction: ltr;">
+        <button id="privacyToggleButton" class="privacy-float-btn shadow-lg" title="حماية وإخفاء الأرصدة بلمسة واحدة">
+            <i id="privacyToggleIcon" class="bi bi-shield-lock fs-5"></i>
+        </button>
+    </div>
+
+    <!-- أزرار التمرير الأصلية -->
+    <div class="scroll-btns">
+        <button class="scroll-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="bi bi-chevron-up"></i></button>
+        <button class="scroll-btn" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})"><i class="bi bi-chevron-down"></i></button>
+    </div>
+
+    <!-- النوافذ المنبثقة الأصلية كاملة -->
+    <div class="modal fade" id="cloudModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-cloud-check-fill"></i> إدارة السحابة</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="text-secondary small">يمكنك مزامنة بياناتك عبر الأجهزة باستخدام كود حسابك.</p><div class="card bg-light-subtle p-3 mb-3 border-0 rounded-3"><label class="fw-bold text-primary mb-1 small">معرّف حسابك:</label><div class="d-flex align-items-center gap-2"><input type="text" id="myCloudIdField" class="form-control bg-body border-0 font-monospace text-center py-2" readonly><button class="btn btn-outline-primary px-3" onclick="copyMyCloudId()"><i class="bi bi-copy"></i> نسخ</button></div></div><div class="card p-3 border-warning rounded-3"><label class="fw-bold text-warning mb-1 small">ربط بحساب آخر:</label><div class="d-flex gap-2"><input type="text" id="targetCloudIdInput" class="form-control" placeholder="أدخل رمز الحساب"><button class="btn btn-warning px-3 fw-bold write-action" onclick="connectToCustomCloudId()"><i class="bi bi-link-45deg"></i> ربط</button></div></div></div><div class="modal-footer"><button class="btn btn-secondary w-100" data-bs-dismiss="modal">إغلاق</button></div></div></div></div>
+
+    <div class="modal fade" id="prayerModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-center p-4"><div class="modal-header border-0 pb-0"><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><i class="bi bi-star-fill" style="font-size:3rem;color:#d4af37;"></i><p class="prayer-text mt-3">اللهم صلِّ وسلم وبارك على نبينا محمد ﷺ</p><p class="text-muted">ذكر الله يطمئن القلوب ويبارك في الأرزاق</p></div><div class="modal-footer border-0 justify-content-center"><button class="btn btn-warning px-4 fw-bold" data-bs-dismiss="modal">اللهم آمين</button></div></div></div></div>
+
+    <div class="modal fade" id="alertsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h5><i class="bi bi-bell-fill"></i> مركز التنبيهات</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body" id="alertsModalBody"></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button></div></div></div></div>
+
+    <div class="modal fade" id="formModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 id="formModalTitle">إضافة</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body" id="formModalBody"></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button><button class="btn btn-success" id="formModalSubmitBtn">حفظ</button></div></div></div></div>
+
+    <div class="modal fade" id="customAlertModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="customAlertTitle">تنبيه</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body" id="customAlertBody"></div><div class="modal-footer"><button class="btn btn-primary text-white" data-bs-dismiss="modal">حسناً</button></div></div></div></div>
+
+    <div class="modal fade" id="customConfirmModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="customConfirmTitle">تأكيد</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body" id="customConfirmBody"></div><div class="modal-footer"><button class="btn btn-secondary" id="customConfirmNo">لا</button><button class="btn btn-primary text-white" id="customConfirmYes">نعم</button></div></div></div></div>
+
+    <div class="modal fade" id="customPromptModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="customPromptTitle">إدخال</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><p id="customPromptMessage"></p><input type="text" id="customPromptInput" class="form-control"></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button><button class="btn btn-primary text-white" id="customPromptOk">موافق</button></div></div></div></div>
+
+    <!-- نافذة نظام الخصوصية الأمنية الإضافية (إعداد / إلغاء القفل) -->
+    <div class="modal fade" id="privacyAuthModal" tabindex="-1" aria-labelledby="privacyAuthModalLabel" aria-hidden="true" style="direction: rtl;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="background-color: var(--card-bg); color: var(--text-primary); border-radius: var(--radius-xl);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="privacyAuthModalLabel">
+                        <i class="bi bi-shield-lock-fill text-primary me-2" style="color: var(--accent) !important;"></i>
+                        <span id="privacyModalTitle">نظام حماية الخصوصية</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body text-center py-4 px-4">
+                    <div class="mb-3">
+                        <i id="privacyModalIcon" class="bi bi-lock-fill text-warning" style="font-size: 3rem; filter: drop-shadow(0 4px 10px rgba(253, 203, 110, 0.3));"></i>
+                    </div>
+                    <p id="privacyModalDesc" class="text-secondary mb-4 fs-7 px-2">يرجى إدخال رمز المرور لعرض الأرصدة والبيانات الحساسة.</p>
+
+                    <!-- إدخال رمز PIN الرئيسي -->
+                    <div class="d-flex justify-content-center gap-2 mb-4" dir="ltr" id="pinInputContainer">
+                        <input type="password" maxlength="1" class="form-control text-center fs-3 fw-bold pin-input-field" style="width: 50px; height: 50px; border-radius: 12px;" autofocus autocomplete="off">
+                        <input type="password" maxlength="1" class="form-control text-center fs-3 fw-bold pin-input-field" style="width: 50px; height: 50px; border-radius: 12px;" autocomplete="off">
+                        <input type="password" maxlength="1" class="form-control text-center fs-3 fw-bold pin-input-field" style="width: 50px; height: 50px; border-radius: 12px;" autocomplete="off">
+                        <input type="password" maxlength="1" class="form-control text-center fs-3 fw-bold pin-input-field" style="width: 50px; height: 50px; border-radius: 12px;" autocomplete="off">
+                    </div>
+
+                    <!-- تأكيد رمز المرور (لشاشة الإعداد فقط) -->
+                    <div class="mb-4 d-none" id="confirmPinContainer">
+                        <label class="form-label text-secondary fs-7 mb-2 fw-medium">تأكيد رمز المرور (PIN) الجديد</label>
+                        <div class="d-flex justify-content-center gap-2" dir="ltr">
+                            <input type="password" maxlength="1" class="form-control text-center fs-3 fw-bold pin-confirm-field" style="width: 50px; height: 50px; border-radius: 12px;" autocomplete="off">
+                            <input type="password" maxlength="1" class="form-control text-center fs-3 fw-bold pin-confirm-field" style="width: 50px; height: 50px; border-radius: 12px;" autocomplete="off">
+                            <input type="password" maxlength="1" class="form-control text-center fs-3 fw-bold pin-confirm-field" style="width: 50px; height: 50px; border-radius: 12px;" autocomplete="off">
+                            <input type="password" maxlength="1" class="form-control text-center fs-3 fw-bold pin-confirm-field" style="width: 50px; height: 50px; border-radius: 12px;" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <!-- رسائل خطأ رمز المرور -->
+                    <div id="privacyErrorMessage" class="text-danger small mb-3 d-none">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> رمز المرور غير صحيح! يرجى المحاولة مجددًا.
+                    </div>
+
+                    <!-- لوحة التحكم في إعدادات الخصوصية المتقدمة -->
+                    <div id="privacySettingsPanel" class="border-top pt-3 text-start d-none" style="border-color: var(--border-light) !important;">
+                        <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-sliders me-1"></i>خيارات الخصوصية الحالية:</h6>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small">طريقة إخفاء البيانات والأرصدة:</label>
+                            <select class="form-select form-select-sm" id="privacyHideStyleSelect">
+                                <option value="stars">نجوم ورموز مشفرة (••••)</option>
+                                <option value="blur">تمويه وضبابية حديثة (Blur)</option>
+                            </select>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" role="switch" id="privacyAutoLockToggle">
+                            <label class="form-check-label text-secondary small" for="privacyAutoLockToggle">تفعيل القفل التلقائي بعد دقيقة واحدة من الخمول</label>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger btn-sm w-100" id="resetPrivacyPinBtn" style="border-radius: 10px;">
+                            <i class="bi bi-trash3-fill me-1"></i> إعادة تعيين نظام الخصوصية بالكامل
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 justify-content-between">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">إلغاء</button>
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary me-2 d-none" id="privacyConfigBtn" title="خيارات الخصوصية" style="border-radius: 12px;">
+                            <i class="bi bi-gear-fill"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary" id="privacySubmitBtn">تأكيد الرمز</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== جافا سكريبت ======================== -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Firebase والاتصال السحابي (نوعه module) -->
+    <script type="module" src="js/firebase-config.js"></script>
+    
+    <!-- منطق التطبيق الأساسي (نوعه عادي، لأنه يستخدم window المتغيرات) -->
+    <script src="js/app-logic.js"></script>
+
+</body>
+</html>
